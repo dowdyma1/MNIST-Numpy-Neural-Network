@@ -1,3 +1,5 @@
+# modified from https://pjreddie.com/projects/mnist-in-csv/
+
 def convert(imgf, labelf, out1f, out2f, n):
     f = open(imgf, "rb")
     o1 = open(out1f, "w") # images
@@ -23,7 +25,7 @@ def convert(imgf, labelf, out1f, out2f, n):
 
         image = []
         for j in range(28*28):
-            image.append(ord(f.read(1))/float(256))
+            image.append(ord(f.read(1))/float(256)) #normalize
         images.append(image)
 
     for image in images:

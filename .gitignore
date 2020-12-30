@@ -1,4 +1,3 @@
 !.gitignore
-values
 DATA/**
 !DATA/convert_mnist.py
