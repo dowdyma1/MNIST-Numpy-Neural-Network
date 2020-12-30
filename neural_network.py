@@ -2,6 +2,7 @@ import numpy as np
 import time
 import csv
 import random
+import os
 
 # Hidden layers
 SECOND_LAYER_NEURONS = 16
@@ -121,24 +122,23 @@ def feed_forward(image_data, weights, biases,prnt=False, tmp=None, test=False):
     
     for l in range(len(neuron_count)):
         z = []
-        #temp = []
+        temp = []
         for i in range(neuron_count[l]):
             z.append(sum(a_data[l]*weights[l][:,i]) + biases[l][i])
+            #print("{} * {}".format(np.shape(a_data[l]), np.shape(weights[l][:,i])))
 
-            #if((l == 2) and (prnt == True)):
-                    #temp += "{} * {} ".format(round(weights[l][x,i],2), round(a_data[l][i],2))
-                #temp.append(round(sigmoid(z[i]),3))
+            #print("l: {} i: {}".format(l, i))
+            #print("{} * {} \n\n".format(np.shape(weights[l][:,i]), 
+            #    np.shape(a_data[l])))
 
         z = np.array(z, dtype=np.float128)
 
         z_data.append(z)
         a_data.append(sigmoid(z))
 
-    #print(temp)
-
 
     if(test == True):
-        max_val = 0
+        max_val = -1
         temp_test = a_data[-1]
         index = -1
 
@@ -150,7 +150,7 @@ def feed_forward(image_data, weights, biases,prnt=False, tmp=None, test=False):
         if(index <0):
             print('\n\n------------ERROR------------\n\n')
             return('error')
-        
+
         return(z_data, a_data, index)
     
 
@@ -170,7 +170,6 @@ def back_prop(z_matrix, a_matrix, label, weights):
     delta_two = np.sum(mult(weights[2],delta_three),axis=1)*sig_prime(z_matrix[1]) # size 16
 
     
-
     del_w[1] = mul_a_delta(a_matrix[1], delta_two)
     del_b[1] = delta_two
 
@@ -207,21 +206,24 @@ def test(dataset, labels, weights, biases):
     for i in range(len(dataset)):
         correct = False
         z_data, a_data, your_label = feed_forward(dataset[i], weights, biases, test=True)
-        correct_label = int(labels[i])
+
+        correct_label = -1
+        for j in range(10):
+            if(int(labels[i][j]) == 1):
+                correct_label = j
+                break
+        #print("{} vs {}\n".format(labels[i], correct_label))
 
         if(correct_label == your_label):
             num_correct += 1
-            correct = True
 
         accuracy = float(num_correct)/(i+1)
 
-        '''
         # PRINTING FOR TESTING PURPOSES
-        if(correct == False):
+        if(i%100 == 0):
             print("-- Image #{} --\nYour Label: {}\nCorrect Label: {}\nAccuracy: {}\n"
-                .format(i+1,your_label, int(labels[i]), round(accuracy,3)))
+                .format(i+1,your_label, correct_label, round(accuracy,3)))
             incorrect_labels.append(correct_label)
-        '''
 
     return(accuracy, incorrect_labels)
 
@@ -229,6 +231,7 @@ def test(dataset, labels, weights, biases):
 # Includes Stochastic Gradient Descent
 def main():
     amt_training = 60000
+    #amt_training = 4
     dataset, labels = getData(amt_training)
 
     weights = getWeights()
@@ -240,10 +243,12 @@ def main():
     ### training data
     print("Training...")
     while(n < amt_training):
+        # printout for training
         if(n>x):
             print(n)
             x += 1000
 
+        # randomizing batch size, m
         if(amt_training-n > 100):
             m = random.randint(1,100)
         else:
@@ -254,26 +259,56 @@ def main():
 
         for i in range(m):
 
-            z_mat, a_mat = feed_forward(dataset[n], weights, biases)
-            add_del_w, add_del_b = back_prop(z_mat, a_mat, labels[n], weights)
+            z_mat, a_mat = feed_forward(
+                    dataset[n+i], weights, biases, prnt=True)
 
-            del_w += add_del_w
-            del_b += add_del_b
+            add_del_w, add_del_b = back_prop(
+                    z_mat, a_mat, labels[n+i], weights)
+
+            # updating del_w and del_b lists
+            for i in range(len(del_w)):
+                del_w[i] += add_del_w[i]
+                del_b[i] += add_del_b[i]
+
+
+            '''
+            print(add_del_b)
+            print(np.shape(add_del_b))
+            print("\n")
+            print(del_b)
+            print(np.shape(del_b))
+            print("\n\n\n\n\n")
+            '''
 
         n += m
 
         for i in range(len(weights)):
-            weights[i] = weights[i] - (LEARNING_RATE/m)*del_w[i]
-            biases[i] = biases[i] - (LEARNING_RATE/m)*del_b[i]
+            weights_change = (LEARNING_RATE/m)*del_w[i]
+            biases_change = (LEARNING_RATE/m)*del_b[i]
+
+            weights[i] = weights[i] - weights_change
+            biases[i] = biases[i] - biases_change
 
 
     ###
     print("Finished training...")
 
-    
     for i in range(len(weights)):
-        np.savetxt("values/weights_{}.csv".format(i+1), weights[i], delimiter=",")
-        np.savetxt("values/biases_{}.csv".format(i+1), biases[i], delimiter=",")
+        weight_filepath = "values/weights_" + str(i+1) + ".csv"
+        biases_filepath = "values/biases_" + str(i+1) + ".csv"
+
+        # logic for filepath
+        if not os.path.exists(weight_filepath):
+            if not os.path.exists("values"):
+                os.mkdir("values")
+            os.mknod(weight_filepath)
+        if not os.path.exists(biases_filepath):
+            if not os.path.exists("values"):
+                os.mkdir("values")
+            os.mknod(biases_filepath)
+
+        np.savetxt(weight_filepath, weights[i], delimiter=",")
+        np.savetxt(biases_filepath, biases[i], delimiter=",")
     
 
     test_images, test_labels = getTestData()
@@ -281,6 +316,9 @@ def main():
 
     print("Final accuracy: " + str(final_accuracy))
 
+def main_exper():
+    dataset, labels = getData(1)
+    print(dataset[0])
 
 
 def main_saved():
@@ -300,12 +338,11 @@ def main_saved():
     for i in range(10):
         myDict[i] = round(100*incorrect_labels.count(i)/float(total),3)
 
-    print(myDict)
+    print(myDict) # percentage incorrect per label
 
 
 # Pure Gradient Descent
-def main_pure():
-    amt_training = 60000
+def main_pure(amt_training=60000):
     dataset, labels = getData(amt_training)
 
     weights = getWeights()
@@ -336,6 +373,7 @@ def main_pure():
     return(final_accuracy)
 
 
+# no batches
 def main_pure_test(dataset, labels, weights, biases, learning_rate):
     amt_training = 60000
 
@@ -379,4 +417,7 @@ def find_learning_rate():
     return(myDict)
 
 
-print(find_learning_rate())
+#print(find_learning_rate())
+#main_saved()
+main_pure()
+#main_exper()
