@@ -3,7 +3,7 @@ This project was created May 2019. It is a neural network with two hidden
 layers, coded without any conventional neural network libraries with the
 purpose to learn intimately how a basic neural network works. I was
 introduced
-to neural networks through one of 3Blue1Brown's YouTube videos and I
+to neural networks through one of [3Blue1Brown's YouTube videos](https://www.youtube.com/watch?v=aircAruvnKk&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi&pbjreload=101) and I
 was instantly hooked. In the video, he recommended [this online book](http://neuralnetworksanddeeplearning.com/) 
 to get a deep understanding of the basics behind neural networks. I studied
 the book and after some programming, managed to complete this project.
@@ -12,27 +12,27 @@ Although I completed this project May 2019, I have edited it quite
 considerably to polish and update it, but the core of the code remains the same.
 
 # Installation (linux and macOS)
+You can download this project by doing:
+```
+git clone https://github.com/dowdyma1/MNIST-Numpy-Neural-Network
+```
+## Installing the image data
 1. Download the data from [here](http://yann.lecun.com/exdb/mnist/) and place it in the DATA folder.
 2. in the DATA folder, run command `gunzip *.gz`
 3. still in the DATA folder, run `python convert_mnist.py`. This converts the images and labels to csv
 4. All done! Ready to run program.
 
 # Usage
-You can download this project by doing:
-```
-git clone https://github.com/dowdyma1/MNIST-Numpy-Neural-Network
-```
-
 Here are the commandline arguments:
 ```
--h                          prints this message
+-h                              prints this message
 
--s <second layer size>    	Change default size of the second layer
--t <third layer size>     	Change default size of the third layer
--l <learning rate>        	Change default learning rate
--d 1                      	Use the saved parameters (weights & biases) instead of training them from scratch
--w 1                      	Does not save the parameters (weights & biases) to text files
--f <start>,<end>,<increase>	Use the learning rate finder by specifying a starting learning rate, the end learning rate, and the amount you want to increase every iteration
+-s <second layer size>    	    Change default size of the second layer
+-t <third layer size>     	    Change default size of the third layer
+-l <learning rate>        	    Change default learning rate
+-d 1                      	    Use the saved parameters (weights & biases) instead of training them from scratch
+-w 1                      	    Does not save the parameters (weights & biases) to text files
+-f <start>,<end>,<increase>	    Use the learning rate finder by specifying a starting learning rate, the end learning rate, and the amount you want to increase every iteration
 
 ```
 
