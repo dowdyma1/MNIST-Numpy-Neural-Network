@@ -222,7 +222,7 @@ def run_nn_saved():
 
     incorrectPerLabel(incorrect_labels)
 
-    print("\nfinal accuracy is: {}%".format(100*final_accuracy))
+    print("\nfinal accuracy is: {}%".format(round(100*final_accuracy,5)))
 
 
 # Pure Gradient Descent, no batches
@@ -247,13 +247,15 @@ def run_nn(no_save_parameters, amt_training=60000):
             weights[i] = weights[i] - LEARNING_RATE*del_w[i]
             biases[i] = biases[i] - LEARNING_RATE*del_b[i]
 
+    print()
     for i in range(len(weights)):
-        print("\nsaving weights and biases to values directory")
 
         weight_filepath = "values/weights_" + str(i+1) + ".csv"
         biases_filepath = "values/biases_" + str(i+1) + ".csv"
 
         if(not no_save_parameters):
+            print("saving layer {} weights and biases to values directory."
+                    .format(i))
             # logic for filepath
             if not os.path.exists(weight_filepath):
                 if not os.path.exists("values"):
@@ -366,7 +368,7 @@ rate finder.")
 
         incorrectPerLabel(incorrect_labels)
 
-        print("final accuracy is: {}%".format(100*final_accuracy))
+        print("final accuracy is: {}%".format(round(100*final_accuracy,5)))
 
 
 if __name__ == "__main__":
